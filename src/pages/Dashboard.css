@@ -1,0 +1,15 @@
+/* Add this to your CSS file (e.g., App.css or Dashboard.css) */
+
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Smooth transition for scale and shadow */
+  }
+  
+  .card-hover:hover {
+    transform: scale(1.05);  /* Scale the card slightly on hover */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.15);  /* Add shadow on hover */
+    background-color: #6087ff;
+  }
+  .custom-card-bg {
+    background-color: #7799ff; /* You can replace this with any color or gradient */
+  }
+  
