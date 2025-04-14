@@ -8,25 +8,42 @@ import "assets/scss/argon-dashboard-react.scss";
 
 import AdminLayout from "layouts/Admin.js";
 import DepositPage from "./pages/DepositPage";
-import WithdrawalsPage from "./pages/withdrawals"; // Adjusted case
+import WithdrawalsPage from "./pages/withdrawals";
 import LoanPage from "./pages/Loan";
 import Transfer from "./pages/Transfer";
 import AddNewTransaction from "./pages/AddNewTransaction";
-import CreateTransferPage from "./pages/CreateTransferPage"; // ✅ Added Create Transfer Page
+import CreateTransferPage from "./pages/CreateTransferPage";
 import Login from "./pages/Signin";
 import Signup from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
-
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import EmployeeCustomers from "./pages/EmployeeCustomers";
+import EmployeeAccounts from "./pages/EmployeeAccounts";
 import Home from "./views/Index";
 import UserProfile from "./pages/UserProfile";
 import CurrencyExchange from "./pages/CurrencyExchange";
-import CreateLoanPage from "./pages/CreateLoanPage"; // ✅ Import Create Loan Page
+import CreateLoanPage from "./pages/CreateLoanPage";
+
 // Utility to check authentication
-const isAuthenticated = () => !!localStorage.getItem("token");
+const getAuthData = () => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+  return { token, role };
+};
 
 // Protected route component
-const ProtectedRoute = ({ children }) => {
-  return isAuthenticated() ? children : <Navigate to="/auth/login" replace />;
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { token, role } = getAuthData();
+
+  if (!token) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
+  return children;
 };
 
 // Render the app
@@ -38,11 +55,11 @@ root.render(
       {/* Redirect "/" to Login */}
       <Route path="/" element={<Navigate to="/auth/login" replace />} />
 
-      {/* Protected Routes */}
+      {/* Protected Routes for Customers */}
       <Route
         path="/admin/*"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <AdminLayout />
           </ProtectedRoute>
         }
@@ -50,7 +67,7 @@ root.render(
       <Route
         path="/admin/home"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <Home />
           </ProtectedRoute>
         }
@@ -58,7 +75,7 @@ root.render(
       <Route
         path="/admin/transactions/deposit"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <DepositPage />
           </ProtectedRoute>
         }
@@ -66,7 +83,7 @@ root.render(
       <Route
         path="/admin/transactions/withdrawals"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <WithdrawalsPage />
           </ProtectedRoute>
         }
@@ -74,7 +91,7 @@ root.render(
       <Route
         path="/admin/transactions/loan"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <LoanPage />
           </ProtectedRoute>
         }
@@ -82,7 +99,7 @@ root.render(
       <Route
         path="/admin/transactions/transfer"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <Transfer />
           </ProtectedRoute>
         }
@@ -90,7 +107,7 @@ root.render(
       <Route
         path="/admin/transactions/addnew"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <AddNewTransaction />
           </ProtectedRoute>
         }
@@ -98,15 +115,15 @@ root.render(
       <Route
         path="/admin/transactions/create-transfer"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <CreateTransferPage />
           </ProtectedRoute>
         }
-      /> {/* ✅ Added Create Transfer Page Route */}
+      />
       <Route
         path="/admin"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <Dashboard />
           </ProtectedRoute>
         }
@@ -114,7 +131,7 @@ root.render(
       <Route
         path="/admin/currency-exchange"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <CurrencyExchange />
           </ProtectedRoute>
         }
@@ -122,19 +139,46 @@ root.render(
       <Route
         path="/admin/user-profile"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={["customer"]}>
             <UserProfile />
           </ProtectedRoute>
         }
       />
-<Route
-  path="/admin/transactions/create-loan"
-  element={
-    <ProtectedRoute>
-      <CreateLoanPage />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/admin/transactions/create-loan"
+        element={
+          <ProtectedRoute allowedRoles={["customer"]}>
+            <CreateLoanPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Protected Routes for Employees */}
+      <Route
+        path="/employee/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["employee"]}>
+            <EmployeeDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employee/customers"
+        element={
+          <ProtectedRoute allowedRoles={["employee"]}>
+            <EmployeeCustomers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/employee/accounts"
+        element={
+          <ProtectedRoute allowedRoles={["employee"]}>
+            <EmployeeAccounts />
+          </ProtectedRoute>
+        }
+      />
+
       {/* Auth Routes */}
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/signup" element={<Signup />} />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Container,
@@ -19,84 +19,88 @@ import Sidebar from "./../components/Sidebar/Sidebar";
 import AdminNavbar from "components/Navbars/AdminNavbar";
 import Header from "components/Headers/Header.js";
 
-const API_BASE_URL = "http://localhost:8080"; // Backend URL
+const API_BASE_URL = "http://localhost:8080"; // ✅ Backend URL
 
 const CreateLoanPage = () => {
   const [loanName, setLoanName] = useState("");
   const [loanAmount, setLoanAmount] = useState("");
   const [loanTerm, setLoanTerm] = useState("");
-  const [loanType, setLoanType] = useState("SHPITZER"); // Default type
-  const [interestRate, setInterestRate] = useState("5"); // Default interest rate (5%)
-  const [startPaymentDate, setStartPaymentDate] = useState(""); // Date input
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // New state for success message
   const [confirmDialog, setConfirmDialog] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+
+  // ✅ Get selected bank account ID from localStorage
+  useEffect(() => {
+    const accountId = localStorage.getItem("selectedAccountId");
+    if (!accountId) {
+      setErrorMessage("❌ No bank account selected.");
+      console.error("⚠️ No sender account ID found in localStorage.");
+    } else {
+      console.log(`✅ Sender's Account ID: ${accountId}`);
+      setSelectedAccountId(parseInt(accountId));
+    }
+  }, []);
 
   // ✅ Handles form submission for creating a new loan
   const handleLoanSubmit = async () => {
     setConfirmDialog(false);
-  
-    if (!loanName || !loanAmount || !loanTerm || !startPaymentDate) {
+
+    if (!loanName || !loanAmount || !loanTerm || !selectedAccountId) {
       setErrorMessage("❌ Please fill in all loan details.");
+      console.error("❌ Missing fields:", { loanName, loanAmount, loanTerm, selectedAccountId });
       return;
     }
-  
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         setErrorMessage("❌ Unauthorized: Please log in again.");
         return;
       }
-  
-      // ✅ Retrieve selected bank account ID
-      const bankAccountId = localStorage.getItem("selectedAccountId");
-      if (!bankAccountId) {
-        setErrorMessage("❌ No bank account selected.");
+
+      console.log("🔑 Token found:", token);
+      console.log("🏦 Selected Bank Account ID:", selectedAccountId);
+
+      // ✅ Ensure `loanTerm` is a number
+      const term = parseInt(loanTerm, 10);
+      if (isNaN(term)) {
+        setErrorMessage("❌ Loan term must be a valid number.");
         return;
       }
-  
-      console.log("🔑 Token found:", token);
-      console.log("🏦 Selected Bank Account ID:", bankAccountId);
-  
-      // ✅ Calculate `endPaymentDate`
-      const startDate = new Date(startPaymentDate);
-      const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + parseInt(loanTerm)); // Add loanTerm months
-  
-      // ✅ Loan Data (DO NOT include interestRate)
+
+      // ✅ Loan Data (With Description)
       const loanData = {
         loanName,
+        description: loanName, // ✅ Using Loan Name as Description
         loanAmount: parseFloat(loanAmount),
-        loanTerm: parseInt(loanTerm),
-        loanType,
-        startPaymentDate,
-        endPaymentDate: endDate.toISOString().split("T")[0], // Send formatted date
+        numberOfPayments: term,
       };
-  
-      console.log(`🔵 Sending Loan request:`, loanData);
-  
+
+      console.log("📩 Loan Request Payload:", JSON.stringify(loanData, null, 2)); // ✅ Debugging
+
       // ✅ Step 1: Add Loan
       const response = await axios.post(`${API_BASE_URL}/loans/add`, loanData, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      console.log(`✅ Loan API Response:`, response.data);
-  
+
+      console.log("✅ Loan API Response:", response.data);
+
       const loanId = response.data.loanId;
       if (!loanId) throw new Error("Loan ID is missing from response.");
-  
+
       // ✅ Step 2: Connect Loan to Bank Account
-      await axios.put(`${API_BASE_URL}/loans/connect/${loanId}/${bankAccountId}`, {}, {
+      console.log(`🚀 Linking loan ID: ${loanId} to Account ID: ${selectedAccountId}`);
+      await axios.put(`${API_BASE_URL}/loans/connect/${loanId}/${selectedAccountId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      alert("Loan added and linked successfully!");
+
       window.location.reload();
     } catch (err) {
       console.error(`❌ Error processing loan:`, err.response?.data || err.message);
       setErrorMessage("❌ Failed to process loan. Please try again.");
     }
   };
-  
 
   return (
     <>
@@ -114,6 +118,22 @@ const CreateLoanPage = () => {
                 <CardBody>
                   {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
 
+                  {/* Success Message */}
+                  {successMessage && (
+                    <div
+                      style={{
+                        backgroundColor: "green",
+                        color: "white",
+                        padding: "10px",
+                        marginBottom: "20px",
+                        borderRadius: "5px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {successMessage}
+                    </div>
+                  )}
+
                   <Label>Loan Name</Label>
                   <Input type="text" value={loanName} onChange={(e) => setLoanName(e.target.value)} required />
 
@@ -121,19 +141,15 @@ const CreateLoanPage = () => {
                   <Input type="number" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} required />
 
                   <Label className="mt-3">Loan Term (Months)</Label>
-                  <Input type="number" value={loanTerm} onChange={(e) => setLoanTerm(e.target.value)} required />
-
-                  <Label className="mt-3">Interest Rate (%)</Label>
-                  <Input type="number" value={interestRate} onChange={(e) => setInterestRate(e.target.value)} required />
-
-                  <Label className="mt-3">Loan Type</Label>
-                  <Input type="select" value={loanType} onChange={(e) => setLoanType(e.target.value)}>
-                    <option value="SHPITZER">Shpitzer (Fixed Monthly Payment)</option>
-                    <option value="EQUAL_PRINCIPAL">Equal Principal (קרן שווה)</option>
-                  </Input>
-
-                  <Label className="mt-3">Start Payment Date</Label>
-                  <Input type="date" value={startPaymentDate} onChange={(e) => setStartPaymentDate(e.target.value)} required />
+                  <Input 
+                    type="number" 
+                    value={loanTerm} 
+                    onChange={(e) => {
+                      setLoanTerm(e.target.value);
+                      console.log("Loan Term Input:", e.target.value); // ✅ Debugging
+                    }} 
+                    required 
+                  />
 
                   <Button color="primary" className="mt-3" onClick={() => setConfirmDialog(true)}>
                     Submit Loan

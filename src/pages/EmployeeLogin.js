@@ -2,14 +2,25 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
-  Container, Row, Col, Card, CardHeader, CardBody, FormGroup, Form, Input, Button,
-  InputGroupAddon, InputGroupText, InputGroup
+  Container,
+  Row,
+  Col,
+  Card,
+  CardHeader,
+  CardBody,
+  FormGroup,
+  Form,
+  Input,
+  Button,
+  InputGroupAddon,
+  InputGroupText,
+  InputGroup,
 } from "reactstrap";
 import logo from "../assets/img/logo.png";
 
 const API_BASE_URL = "http://localhost:8080";
 
-const Login = () => {
+const EmployeeLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -18,28 +29,22 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(`${API_BASE_URL}/login`, {
-        params: { username, password },
-      });
+        const response = await axios.get(`${API_BASE_URL}/login`, {
+            params: { username, password },
+        });
 
-      const { token, role } = response.data;  // ✅ Get role from response
-      if (token && role) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("username", username);
-        localStorage.setItem("role", role);  // ✅ Save role
-       
-        // ✅ Redirect based on role
-        if (role === "employee") {
-          navigate("/employee/dashboard");
-        } else {
-          navigate("/admin");
+        const { token } = response.data;
+        if (token) {
+            localStorage.setItem("token", token);
+            localStorage.setItem("username", username);
+            navigate("/admin/employee-dashboard"); // Redirect employee
         }
-      }
     } catch (error) {
-      console.error("Login error:", error);
-      setErrorMessage("Invalid username or password");
+        console.error("Login error:", error);
+        setErrorMessage("Invalid username or password");
     }
-  };
+};
+
 
   return (
     <div style={{
@@ -55,12 +60,12 @@ const Login = () => {
           <Col lg="4" md="6">
             <Card className="bg-secondary border-0">
               <CardHeader className="bg-transparent text-center pb-5">
-                <h2 className="text-dark">WELCOME TO SpringBank</h2>
+                <h2 className="text-dark">Employee Login</h2>
                 <img src={logo} alt="Logo" style={{ width: "150px", marginTop: "30px" }} />
               </CardHeader>
               <CardBody className="px-lg-5 py-lg-5">
                 <div className="text-center text-muted mb-4">
-                  <small>Log In with credentials</small>
+                  <small>Enter your employee credentials</small>
                 </div>
                 <Form role="form" onSubmit={handleLogin}>
                   <FormGroup className="mb-3">
@@ -95,7 +100,6 @@ const Login = () => {
                       />
                     </InputGroup>
                   </FormGroup>
-
                   <div className="text-center">
                     <Button className="my-4" color="primary" type="submit">
                       Log in
@@ -103,11 +107,6 @@ const Login = () => {
                   </div>
                 </Form>
                 {errorMessage && <p style={{ color: "red", textAlign: "center" }}>{errorMessage}</p>}
-                <div className="text-center mt-3">
-                  <a href="/auth/signup" className="text-gray">
-                    <small>Create new account</small>
-                  </a>
-                </div>
               </CardBody>
             </Card>
           </Col>
@@ -117,4 +116,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default EmployeeLogin;

@@ -122,7 +122,8 @@ const Sidebar = (props) => {
                       style={{ color: "#17a2b8" }} // 🟦 Teal for Create New Transaction
                     >
                       <i className="fas fa-plus-square" />
-                      Create New Transaction
+                      Create New Withdrawal and deposit
+                     
                     </NavLink>
                   </NavItem>
                   {/* ✅ Added Create New Transfer */}
@@ -133,7 +134,7 @@ const Sidebar = (props) => {
                       style={{ color: "#17a2b8" }} // 🟦 Teal for Create New Transfer
                     >
                       <i className="fas fa-exchange-alt" />
-                      Create New Withdrawal and deposit
+                      Create New Transfer
                     </NavLink>
                   </NavItem>
                   {/* ✅ Added Create New Loan */}

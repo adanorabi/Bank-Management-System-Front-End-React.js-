@@ -19,14 +19,14 @@ import Sidebar from "./../components/Sidebar/Sidebar";
 import AdminNavbar from "components/Navbars/AdminNavbar";
 import Header from "components/Headers/Header.js";
 
-const API_BASE_URL = "http://localhost:8080"; // Backend URL
+const API_BASE_URL = "http://localhost:8080"; // ✅ Backend URL
 
 const CreateTransactionPage = () => {
   const [transactionType, setTransactionType] = useState(null);
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("ILS"); // Default currency
   const [currencies, setCurrencies] = useState([]); // Available currencies
-  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [confirmDialog, setConfirmDialog] = useState(false);
   const [confirmationType, setConfirmationType] = useState("");
 
@@ -63,62 +63,89 @@ const CreateTransactionPage = () => {
     setTransactionType(type);
     setAmount("");
     setCurrency("ILS");
-    setErrorMessage("");
   };
 
-  // ✅ Handles deposit or withdrawal submission
   const handleTransactionSubmit = async () => {
     const selectedAccountId = localStorage.getItem("selectedAccountId");
+    console.log("🔍 Selected Account ID from storage:", selectedAccountId); // ✅ Debug log
     if (!selectedAccountId) {
-      setErrorMessage("No account selected.");
+      setSuccessMessage("No account selected.");
       return;
     }
-  
+
     if (!amount || parseFloat(amount) <= 0) {
-      setErrorMessage("Please enter a valid amount.");
+      setSuccessMessage("Please enter a valid amount.");
       return;
     }
-  
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        setErrorMessage("Unauthorized: Please log in again.");
+        setSuccessMessage("Unauthorized: Please log in again.");
         return;
       }
-  
+
       const isDeposit = transactionType === "deposit";
       const apiEndpoint = isDeposit ? "deposits" : "withdrawals";
-      const amountKey = isDeposit ? "despositAmount" : "withdrawalAmount"; // ✅ Correct field name
-  
+      const amountKey = isDeposit ? "despositAmount" : "withdrawalAmount"; // ✅ Ensure field name is correct
+
+      // ✅ Log request payload
+      const requestData = {
+        [amountKey]: parseFloat(amount),
+        currencyCode: currency,
+        description: `User ${transactionType}`,
+      };
+      console.log("🚀 Sending API request:", requestData);
+
       // ✅ Step 1: Add the transaction
       const response = await axios.post(
         `${API_BASE_URL}/${apiEndpoint}/add`,
-        { [amountKey]: parseFloat(amount), currencyCode: currency, description: `User ${transactionType}` },
+        requestData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       console.log(`✅ ${transactionType} API Response:`, response.data);
-  
+
       // ✅ Extract transactionId
-      const transactionId = response.data.transactionId;
+      let transactionId = response.data.transactionId;
+      // ✅ Step 2: If transactionId is missing, try fetching it manually
       if (!transactionId) {
-        throw new Error("Transaction ID is missing from response.");
+        console.warn("⚠️ Transaction ID missing, fetching last transaction...");
+
+        const latestTransactionRes = await axios.get(
+          `${API_BASE_URL}/${apiEndpoint}/latest`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        transactionId = latestTransactionRes.data.transactionId;
+        console.log("✅ Retrieved latest transaction ID:", transactionId);
+
+        if (!transactionId) {
+          throw new Error("Transaction ID still missing.");
+        }
       }
-  
+
       // ✅ Step 2: Link transaction to bank account
+      console.log(`🚀 Linking transaction ${transactionId} to account ${selectedAccountId}`);
       await axios.put(
         `${API_BASE_URL}/${apiEndpoint}/connect/${transactionId}/${selectedAccountId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
-      alert(`${transactionType} added and linked successfully!`);
-      window.location.reload();
+
+      // ✅ Success message and delay before reload
+     
+
+      // ✅ Delay the reload by 3 seconds, showing the success message first
+     
+        window.location.reload();
+      
     } catch (err) {
-      setErrorMessage("Failed to process transaction. Please try again.");
+      console.error("❌ API Error:", err);
+      setSuccessMessage("An unexpected error occurred. Please try again.");
     }
   };
-  
+
   // ✅ Handle transaction submission
   const handleSubmit = () => {
     setConfirmationType(transactionType);
@@ -181,7 +208,19 @@ const CreateTransactionPage = () => {
                     <h5>{transactionType.charAt(0).toUpperCase() + transactionType.slice(1)} Information</h5>
                   </CardHeader>
                   <CardBody>
-                    {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+                    {successMessage && (
+                      <div
+                        style={{
+                          backgroundColor: "green",
+                          color: "white",
+                          padding: "10px",
+                          borderRadius: "5px",
+                          marginBottom: "20px",
+                        }}
+                      >
+                        {successMessage}
+                      </div>
+                    )}
                     <Label for="amount">Amount</Label>
                     <Input
                       type="number"

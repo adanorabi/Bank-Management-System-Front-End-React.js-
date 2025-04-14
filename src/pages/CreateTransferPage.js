@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Container,
@@ -19,22 +19,35 @@ import Sidebar from "./../components/Sidebar/Sidebar";
 import AdminNavbar from "components/Navbars/AdminNavbar";
 import Header from "components/Headers/Header.js";
 
-const API_BASE_URL = "http://localhost:8080"; // Backend URL
+const API_BASE_URL = "http://localhost:8080"; // ✅ Backend URL
 
 const CreateTransferPage = () => {
   const [transferName, setTransferName] = useState("");
   const [receiverAccountNum, setReceiverAccountNum] = useState("");
-  const [receiverBankCode, setReceiverBankCode] = useState("");
   const [transferBranchCode, setTransferBranchCode] = useState("");
   const [amount, setAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // New state for success message
   const [confirmDialog, setConfirmDialog] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+
+  // ✅ Get sender's bank account ID from localStorage
+  useEffect(() => {
+    const accountId = localStorage.getItem("selectedAccountId");
+    if (!accountId) {
+      setErrorMessage("❌ No sender account selected.");
+      console.error("⚠️ No sender account ID found in localStorage.");
+    } else {
+      console.log(`✅ Sender's Account ID: ${accountId}`);
+      setSelectedAccountId(parseInt(accountId));
+    }
+  }, []);
 
   // ✅ Handles form submission for creating a new transfer
   const handleTransferSubmit = async () => {
     setConfirmDialog(false); // Close confirmation modal
 
-    if (!transferName || !receiverAccountNum || !receiverBankCode || !transferBranchCode || !amount) {
+    if (!transferName || !receiverAccountNum || !transferBranchCode || !amount || !selectedAccountId) {
       setErrorMessage("❌ Please fill in all transfer details.");
       return;
     }
@@ -46,13 +59,16 @@ const CreateTransferPage = () => {
         return;
       }
 
-      // ✅ Request payload
+      // ✅ Get the current date in YYYY-MM-DD format
+      const today = new Date().toISOString().split("T")[0];
+
+      // ✅ Request payload (receiver is stored, but linking is for sender)
       const transferData = {
         transferName,
-        receiverAccountNum: parseInt(receiverAccountNum),
-        receiverBankCode: parseInt(receiverBankCode),
+        receiverAccountNum: parseInt(receiverAccountNum), // ✅ Receiver's actual account
         transferBranchCode: parseInt(transferBranchCode),
         amount: parseFloat(amount),
+        transferDate: today, // ✅ Adds today's date
         transferStatus: "PENDING",
       };
 
@@ -68,12 +84,13 @@ const CreateTransferPage = () => {
       const transferId = response.data.transactionId;
       if (!transferId) throw new Error("Transfer ID is missing from response.");
 
-      // ✅ Step 2: Connect transfer to bank account (always Bank ID = 1)
-      await axios.put(`${API_BASE_URL}/transfers/connect/${transferId}/1`, {}, {
+      // ✅ Step 2: Connect **only sender's** bank account (from storage)
+      console.log(`🔄 Linking transfer ID: ${transferId} TO SENDER ${selectedAccountId}`);
+      
+      await axios.put(`${API_BASE_URL}/transfers/connect/${transferId}/${selectedAccountId}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      alert("Transfer added and linked successfully!");
       window.location.reload();
     } catch (err) {
       console.error(`❌ Error processing transfer:`, err.response?.data || err.message);
@@ -97,14 +114,26 @@ const CreateTransferPage = () => {
                 <CardBody>
                   {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
 
+                  {/* Success Message */}
+                  {successMessage && (
+                    <div
+                      style={{
+                        backgroundColor: "green",
+                        color: "white",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        marginBottom: "20px",
+                      }}
+                    >
+                      {successMessage}
+                    </div>
+                  )}
+
                   <Label>Transfer Name</Label>
                   <Input type="text" value={transferName} onChange={(e) => setTransferName(e.target.value)} required />
 
                   <Label className="mt-3">Receiver Account Number</Label>
                   <Input type="number" value={receiverAccountNum} onChange={(e) => setReceiverAccountNum(e.target.value)} required />
-
-                  <Label className="mt-3">Receiver Bank Code</Label>
-                  <Input type="number" value={receiverBankCode} onChange={(e) => setReceiverBankCode(e.target.value)} required />
 
                   <Label className="mt-3">Branch Code</Label>
                   <Input type="number" value={transferBranchCode} onChange={(e) => setTransferBranchCode(e.target.value)} required />

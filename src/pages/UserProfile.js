@@ -45,7 +45,14 @@ const UserProfile = () => {
 
         // Fetch user profile
         const profileResponse = await axios.get(`${API_BASE_URL}/customers/get/username/${username}`, { headers });
-        setUserProfile(profileResponse.data);
+
+        // ✅ Ensure firstName is taken from `name`
+        const userData = {
+          ...profileResponse.data,
+          firstName: profileResponse.data.name, // ✅ Corrected field mapping
+        };
+
+        setUserProfile(userData);
 
         // Fetch bank accounts
         const accountsResponse = await axios.get(`${API_BASE_URL}/customers/get/username/${username}/accounts`, { headers });
@@ -60,6 +67,12 @@ const UserProfile = () => {
 
     fetchUserData();
   }, []);
+
+  // ✅ Click to store selected account & navigate
+  const handleAccountClick = (accountId) => {
+    localStorage.setItem("selectedAccountId", accountId);
+    navigate("/admin/home"); // ✅ Redirects to main home like in Dashboard
+  };
 
   return (
     <>
@@ -83,7 +96,9 @@ const UserProfile = () => {
                       style={{ width: "120px", height: "120px", margin: "0 auto" }}>
                       <i className="ni ni-single-02 text-primary" style={{ fontSize: "50px" }} />
                     </div>
-                    <h3 className="mt-3">{userProfile.firstName || "Unknown"}</h3>
+                    <h3 className="mt-3">
+                      {userProfile.firstName || "Valued Customer"} {/* ✅ Now using firstName correctly */}
+                    </h3>
                     <p className="text-muted">{userProfile.email || "No email found"}</p>
                     <p className="text-dark"><strong>Username:</strong> {userProfile.userName || "No username"}</p>
                     <p><i className="ni location_pin mr-2" />{userProfile.address || "No address"}</p>
@@ -107,12 +122,12 @@ const UserProfile = () => {
                           <Col md="6" key={account.id} className="mb-3">
                             <Card
                               className="shadow border-0 text-center"
-                              onClick={() => navigate(`/admin/home/${account.id}`)}
+                              onClick={() => handleAccountClick(account.id)} // ✅ Navigates on click
                               style={{ cursor: "pointer", background: "#f7fafc" }}
                             >
                               <CardBody>
                                 <h5 className="text-primary">{account.type}</h5>
-                                <p className="text-dark">Balance: ${account.balance.toLocaleString()}</p>
+                                <p className="text-dark">Balance: ₪{account.balance.toLocaleString()}</p>
                                 <p className="text-muted">Status: {account.status}</p>
                               </CardBody>
                             </Card>

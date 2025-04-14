@@ -13,7 +13,7 @@ import {
   Input,
   Button,
   Label,
-  Alert,
+  Alert, // ✅ Import Alert
 } from "reactstrap";
 import logo from "../assets/img/logo.png";
 
@@ -21,7 +21,7 @@ const API_BASE_URL = "http://localhost:8080";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
-    firstName: "",
+    name: "",
     email: "",
     password: "",
     address: "",
@@ -32,7 +32,7 @@ const SignUp = () => {
 
   const [step, setStep] = useState(1); // Step 1: User details, Step 2: OTP verification
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Success message state
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(300); // 5 minutes (300 seconds)
   const [resendEnabled, setResendEnabled] = useState(false);
@@ -56,19 +56,19 @@ const SignUp = () => {
     }
   }, [countdown, step]);
 
-  // ✅ **Step 1: Validate User Info & Send OTP**
+  // Step 1: Validate User Info & Send OTP
   const handleContinue = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
-    setSuccessMessage("");
+    setSuccessMessage(""); // Clear any previous success message
 
     try {
       const response = await axios.get(`${API_BASE_URL}/otp/generate`, {
         params: {
           email: formData.email,
           userName: formData.userName,
-          firstName: formData.firstName,
+          firstName: formData.name, // Updated to send `name`
           birthdate: formData.birthdate,
           password: formData.password,
           address: formData.address,
@@ -88,7 +88,7 @@ const SignUp = () => {
     }
   };
 
-  // ✅ **Step 2: Validate OTP & Register**
+  // Step 2: Validate OTP & Register
   const handleSignup = async (e) => {
     e.preventDefault();
     if (!formData.otp || formData.otp.length !== 6) {
@@ -98,7 +98,7 @@ const SignUp = () => {
 
     setLoading(true);
     setErrorMessage("");
-    setSuccessMessage("");
+    setSuccessMessage(""); // Clear any previous success message
 
     try {
       // Validate OTP
@@ -112,8 +112,12 @@ const SignUp = () => {
         otp: undefined, // Exclude OTP before sending data to backend
       });
 
-      alert("Signup successful! Please log in.");
-      navigate("/auth/login");
+      setSuccessMessage("Signup successful! Please log in.");
+      
+      // Set a 3-second delay before navigating to the login page
+      setTimeout(() => {
+        navigate("/auth/login");
+      }, 3000); // Delay of 3 seconds
     } catch (error) {
       console.error("❌ Registration Failed:", error.response ? error.response.data : error);
       setErrorMessage(error.response?.data || "Invalid OTP or registration failed.");
@@ -143,13 +147,26 @@ const SignUp = () => {
               </CardHeader>
               <CardBody className="px-lg-5 py-lg-4">
                 {errorMessage && <Alert color="danger">{errorMessage}</Alert>}
-                {successMessage && <Alert color="success">{successMessage}</Alert>}
+                {successMessage && (
+                  <div
+                    style={{
+                      backgroundColor: "green",
+                      color: "white",
+                      padding: "10px",
+                      marginBottom: "20px",
+                      borderRadius: "5px",
+                      textAlign: "center",
+                    }}
+                  >
+                    {successMessage}
+                  </div>
+                )}
 
                 {step === 1 ? (
                   // Step 1: User Information
                   <Form role="form" onSubmit={handleContinue}>
                     <FormGroup>
-                      <Input placeholder="Full Name" type="text" name="firstName" value={formData.firstName} onChange={handleChange} required />
+                      <Input placeholder="Full Name" type="text" name="name" value={formData.name} onChange={handleChange} required />
                     </FormGroup>
 
                     <Row>
@@ -188,7 +205,7 @@ const SignUp = () => {
                       </Button>
                     </div>
 
-                    {/* ✅ Added "Already have an account?" link */}
+                    {/* Added "Already have an account?" link */}
                     <div className="text-center mt-3">
                       <a href="/auth/login" className="text-gray">
                         <small>Already have an account? Log in</small>
@@ -215,7 +232,7 @@ const SignUp = () => {
                       />
                     </FormGroup>
                     <p className="text-center" style={{ fontSize: "18px", fontWeight: "bold" }}>
-                      OTP expires in:{" "}
+                      the Code expires in:{" "}
                       <span style={{ color: countdown < 60 ? "red" : "black" }}>
                         {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, "0")}
                       </span>
@@ -223,7 +240,7 @@ const SignUp = () => {
                     {resendEnabled && (
                       <div className="text-center">
                         <Button color="link" onClick={handleContinue}>
-                          Resend OTP
+                          Resend Validation code
                         </Button>
                       </div>
                     )}

@@ -48,7 +48,7 @@ const UserHeader = () => {
         <Row>
           <Col lg="7" md="10">
             <h1 className="display-2 text-white">
-              Hello, {userProfile?.firstName || "Valued Customer"}
+              Hello, {userProfile?.name || "Valued Customer"}
             </h1>
             <p className="text-white mt-0 mb-5">
               Welcome to your banking dashboard. Here, you can see all of your accounts, track your financial transactions, and ensure your finances are in order.
