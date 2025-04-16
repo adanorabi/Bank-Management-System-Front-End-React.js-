@@ -5,74 +5,126 @@ This project is the front-end for a Bank Management System built with React.js. 
 
 The front-end was developed with React.js, and the backend is housed in a separate repository. You can connect the two by following the instructions below.
 
+---
+
 ## 🎥 Video Demo
-https://drive.google.com/file/d/1jk_9iyIPoyBeOTzkMQ8w1HoY5Gcorvis/view?usp=sharing
+
+<video width="700" controls>
+  <source src="docs/videos/demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+You can also view it on Google Drive:  
+🔗 [Watch Demo](https://drive.google.com/file/d/1jk_9iyIPoyBeOTzkMQ8w1HoY5Gcorvis/view?usp=sharing)
+
+---
 
 ## 🛠️ Features
-Employee Login: Allows users to log in securely and access the bank’s dashboard.
+- 🔐 **Employee Login**: Secure login and dashboard access.
+- 💰 **Transaction History**: View and manage account activity.
+- 🧾 **Account Balances**: Real-time updates.
+- 🏦 **Loan Management**: Track loans and payment status.
+- 📊 **Chart Visualization**: Graphs for financial trends.
+- 📱 **Responsive UI**: Optimized for all screen sizes.
 
-Transaction History: View all transactions, deposits, and withdrawals.
-
-Account Balances: Displays account balances and updates them in real-time.
-
-Loan Management: Tracks loans and their payments.
-
-Chart Visualization: A dynamic line chart displays account balances over time.
-
-Responsive UI: Built with responsive design using React and reactstrap.
+---
 
 ## 💻 Tech Stack
-Front-End: React.js, Axios, Chart.js, React Router, Reactstrap
+- **Frontend**: React.js, Axios, Chart.js, React Router, Reactstrap  
+- **Backend**: Java Spring Boot (separate repository)  
+- **Authentication**: JSON Web Token (JWT)  
+- **State Management**: React Hooks (`useState`, `useEffect`)  
 
-Backend: Java Spring Boot (separate repository)
-
-Authentication: JSON Web Token (JWT)
-
-State Management: React Hooks (useState, useEffect)
+---
 
 ## 🔗 How to Connect Frontend with Backend
-The front-end connects to the backend API hosted on a local server (http://localhost:8080). If you wish to connect this front-end with your own backend, follow these steps:
 
-Clone the back-end repository from GitHub (ensure it’s running on localhost:8080).
+1. Clone the backend repository and run it on `http://localhost:8080`.
+2. Ensure your backend allows CORS from the frontend.
+3. Update `src/axios.js`:
 
-Make sure the CORS policy on your backend allows requests from the React front-end.
+```js
+const API_BASE_URL = "http://localhost:8080";
+```
 
-In the src/axios.js file, change the API_BASE_URL to point to your backend URL:
+4. Install and run both projects:
 
-js
-Copy
-const API_BASE_URL = "http://localhost:8080";  // Update this URL if needed
-Install dependencies for both the frontend and backend:
+**Frontend:**
 
-Frontend: Run npm install in the React project.
+```bash
+npm install
+npm start
+```
 
-Backend: Set up and run the Spring Boot application as per the backend's instructions.
+**Backend:**  
+Follow instructions provided in the backend repository.
 
-Run both servers locally, and the front-end should interact with the backend for transactions, loan management, and authentication.
+---
 
 ## ⚙️ Installation
-Clone the repository:
 
-bash
-Copy
+```bash
 git clone https://github.com/yourusername/Bank-Management-System-Front-End-React.js-.git
 cd Bank-Management-System-Front-End-React.js
-Install dependencies:
-
-bash
-Copy
 npm install
-Start the development server:
-
-bash
-Copy
 npm start
-Open your browser and navigate to http://localhost:3000.
+```
+
+Visit the app at: [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 📸 Screenshots
+
+### 🔐 Login & Signup
+
+<img src="docs/images/login.png" width="600"/>  
+<img src="docs/images/signup.png" width="600"/>
+
+---
+
+### 👤 Customer Views
+
+**Home Page**  
+<img src="docs/images/home.png" width="600"/>  
+<img src="docs/images/homechart.png" width="600"/>
+
+**User Profile**  
+<img src="docs/images/userProfile.png" width="600"/>
+
+**Transaction History**  
+<img src="docs/images/transaction1.png" width="600"/>  
+<img src="docs/images/transaction2.png" width="600"/>
+
+**Loans**  
+<img src="docs/images/loans.png" width="600"/>
+
+---
+
+### 🧑‍💼 Employee Views
+
+**Employee Dashboard**  
+<img src="docs/images/employee dashboard.png" width="600"/>
+
+**User Dashboard View**  
+<img src="docs/images/userdashboard.png" width="600"/>
+
+**Add Transaction**  
+<img src="docs/images/add transaction.png" width="600"/>
+
+**Management Panel**  
+<img src="docs/images/manage.png" width="600"/>  
+<img src="docs/images/managment2.png" width="600"/>
+
+---
 
 ## 📝 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### 🤝 Acknowledgements
-Creative Tim for the free UI components used in this project.
+---
 
-The backend code has been reused from an existing repository, with customizations made to fit the needs of this front-end.
+## 🤝 Acknowledgements
+- UI components and layout design were adapted from  
+  💡 [Creative Tim – Argon Dashboard React]([https://drive.google.com/file/d/1jk_9iyIPoyBeOTzkMQ8w1HoY5Gcorvis/view?usp=sharing](https://github.com/creativetimofficial/argon-dashboard-react))
+-Thanks to Creative Tim for their beautiful open-source dashboard!
+-The backend code was reused and customized to match the frontend features.
