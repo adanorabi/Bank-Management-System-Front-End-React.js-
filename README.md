@@ -1,31 +1,33 @@
 # 🏦 Bank Management System – Front End (React.js)
 
 ## 📄 Description
-This project is the front-end for a Bank Management System built with React.js. The application allows employees to log in and view financial data such as transaction history, account balances, and loan details. It connects to a backend API for data retrieval and updates.
+This project is the front-end for a Bank Management System built with React.js. The application allows employees to log in and view financial data such as transaction history, account balances, and loan details.
 
-The front-end was developed with React.js, and the backend is housed in a separate repository. You can connect the two by following the instructions below.
+The frontend was developed using **React.js**, while the backend was fully implemented using **Java Spring Boot** in a separate repository. You can connect the two by following the instructions below.
 
 ---
 
 ## 🎥 Video Demo
 
 <video width="700" controls>
-  <source src="docs/videos/demo.mp4" type="video/mp4">
+  <source src="bank_2IkKv3WU.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
-You can also view it on Google Drive:  
+You can view it on Google Drive:  
 🔗 [Watch Demo](https://drive.google.com/file/d/1jk_9iyIPoyBeOTzkMQ8w1HoY5Gcorvis/view?usp=sharing)
 
 ---
 
 ## 🛠️ Features
-- 🔐 **Employee Login**: Secure login and dashboard access.
+- 🔐 **Login with Role Detection**: Supports both **Employee** and **Customer** login based on user roles.
+- 📧 **Email Verification**: Secure one-time password system for user authentication.
+- 🛡️ **Role-Based Authorization**: Access control tailored to user roles (employee vs. customer).
 - 💰 **Transaction History**: View and manage account activity.
-- 🧾 **Account Balances**: Real-time updates.
-- 🏦 **Loan Management**: Track loans and payment status.
-- 📊 **Chart Visualization**: Graphs for financial trends.
-- 📱 **Responsive UI**: Optimized for all screen sizes.
+- 🧾 **Account Balances**: Real-time updates for customer accounts.
+- 🏦 **Loan Management**: Track loan applications, statuses, and repayments.
+- 📊 **Chart Visualization**: Graphs and charts to visualize financial trends.
+- 📱 **Responsive UI**: Fully responsive design using React and Reactstrap.
 
 ---
 
@@ -89,10 +91,13 @@ Visit the app at: [http://localhost:3000](http://localhost:3000)
 <img src="docs/images/home.png" width="600"/>  
 <img src="docs/images/homechart.png" width="600"/>
 
+**User Dashboard View**  
+<img src="docs/images/userdashboard.png" width="600"/>
+
 **User Profile**  
 <img src="docs/images/userProfile.png" width="600"/>
 
-**Transaction History**  
+**Transactions **  
 <img src="docs/images/transaction1.png" width="600"/>  
 <img src="docs/images/transaction2.png" width="600"/>
 
@@ -105,12 +110,6 @@ Visit the app at: [http://localhost:3000](http://localhost:3000)
 
 **Employee Dashboard**  
 <img src="docs/images/employee dashboard.png" width="600"/>
-
-**User Dashboard View**  
-<img src="docs/images/userdashboard.png" width="600"/>
-
-**Add Transaction**  
-<img src="docs/images/add transaction.png" width="600"/>
 
 **Management Panel**  
 <img src="docs/images/manage.png" width="600"/>  
@@ -127,4 +126,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - UI components and layout design were adapted from  
   💡 [Creative Tim – Argon Dashboard React]([https://drive.google.com/file/d/1jk_9iyIPoyBeOTzkMQ8w1HoY5Gcorvis/view?usp=sharing](https://github.com/creativetimofficial/argon-dashboard-react))
 -Thanks to Creative Tim for their beautiful open-source dashboard!
--The backend code was reused and customized to match the frontend features.
+- The **backend was fully implemented from scratch** by us and customized to connect seamlessly with this React front-end.
